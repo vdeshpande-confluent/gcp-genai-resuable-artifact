@@ -1,0 +1,39 @@
+{
+  "type": "record",
+  "namespace": "com.genai.mynamespace",
+  "name": "gcp_genai_demo_prompt_embedding",
+  "fields": [
+    {
+      "name": "prompt_details",
+      "type": {
+        "type": "record",
+        "name": "prompt_details_record",
+        "fields": [
+          {
+            "name": "prompt_id",
+            "type": "string"
+          },
+          {
+            "name": "text",
+            "type": "string"
+          },
+          {
+            "name": "image_url",
+            "type": "string"
+          },
+          {
+            "name": "session_id",
+            "type": "int"
+          }
+        ]
+      }
+    },
+    {
+      "name": "matched_indexes",
+      "type": {
+        "type": "array",
+        "items": "string"
+      }
+    }
+  ]
+}

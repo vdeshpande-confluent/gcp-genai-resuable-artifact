@@ -1,0 +1,8 @@
+fastapi>=0.1
+uvicorn>=0.27
+sse_starlette
+pydantic
+google-cloud-aiplatform
+typing
+google-cloud-storage
+confluent_kafka

@@ -1,0 +1,42 @@
+[default]
+bucket_name = ""
+allow_trailing_spaces = true
+allow_trailing_nulls = true
+
+[project]
+id = <YOUR_PROJECT_ID>
+location = <YOUR REGION>
+endpoint = <SPECIFY YOUR VECTOR SEARCH ENDPOINT>
+
+[gcs]
+bucket_name = ""
+
+[models]
+gemini = "gemini-1.0-pro-vision-001"
+llm = "text-bison@002"
+
+[vectors]
+index_path = ""
+endpoint_id = ""
+deployed_index = ""
+number_of_neighbors = 7
+
+[big_query]
+prefix = ""
+product_table = ""
+product_id_column = "id"
+product_category_column_list = ["c0_name", "c1_name", "c2_name", "c3_name"]
+product_attributes_column = "attributes"
+product_description_column = "description"
+product_category_allow_trailing_nulls = true
+
+[category]
+filter = ["L0", "L1", "L2", "L3"]
+depth = 4
+
+[test]
+product_id = <SPECIFY AN PRODUCT ID STRING FOR TEST PURPOSE>
+category = <SPECIFY AN CATEGORY FOR TEST PURPOSE>
+description = <SPECIFY AN GCS_IMAGE_URL FOR TEST PURPOSE>
+gcs_image = <SPECIFY AN GCS_IMAGE_URL FOR TEST PURPOSE>
+image_url = <SPECIFY AN SIMILAR_IMAGE_URL FOR TEST PURPOSE>

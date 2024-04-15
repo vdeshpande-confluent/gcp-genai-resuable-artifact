@@ -1,0 +1,32 @@
+{
+    "namespace": "com.genai.mynamespace",
+    "name": "gcp_genai_demo_prompt",
+    "type": "record",
+    "fields": [
+        {
+            "name": "prompt_id",
+            "type":  "string"
+        },
+        {
+            "name": "text",
+            "type":  "string"
+        },
+        {
+            "name": "image_url",
+            "type":   [
+                    "null",
+                    "string"
+                ],
+            "default": null
+        },
+        {
+            "name": "session_id",
+            "type":   [
+                    "null",
+                    "int"
+                ],
+            "default": null
+        }
+    ]
+   
+}

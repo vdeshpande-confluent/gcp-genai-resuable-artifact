@@ -1,0 +1,7 @@
+.env
+client.properties
+app.toml
+terraform*
+.terraform*
+prompt.zip
+context.zip
