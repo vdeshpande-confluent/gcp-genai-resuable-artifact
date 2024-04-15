@@ -16,29 +16,29 @@ For example, if a user is browsing a particular product in the catalog, the syst
 
 
 ### Components
-Gemini API: This is Google's flagship Language Model used for generating responses based on the user's preferences, expected weather conditions, and their desired colors.
+**Gemini API**: This is Google's flagship Language Model used for generating responses based on the user's preferences, expected weather conditions, and their desired colors.
 
-Cloud Functions: These are used to generate embeddings and vectors, and to write the core business logic for generating context embedding as well as prompt embedding.Also search vector db to get related embeddings for prompt embedding
+**Cloud Functions**: These are used to generate embeddings and vectors, and to write the core business logic for generating context embedding as well as prompt embedding.Also search vector db to get related embeddings for prompt embedding
 
-Flink SQL: This is used to join prompt and context table data and insert session history.
+**Flink SQL**: This is used to join prompt and context table data and insert session history.
 
-Cloud Run App: This is a fast api app deployed with the Vertex AI SDK to send requests to gemini API with the acquired related context data for a prompt and generate a text like response for the user.
+**Cloud Run App**: This is a fast api app deployed with the Vertex AI SDK to send requests to gemini API with the acquired related context data for a prompt and generate a text like response for the user.
 
-Connectors: These include two Sink Connector to Cloud Functions and an HTTP Sink Connector to send requests to the Cloud Run App app.
+**Connectors**: These include two Sink Connector to Cloud Functions and an HTTP Sink Connector to send requests to the Cloud Run App app.
 
 
 ### Architecture
 The architecture of the gcp-genai-demo project involves a series of steps:
 
-Data Generation: The process begins with the generation of product info data.
+**Data Generation**: The process begins with the generation of product info data.
 
-Context Creation: The context is created using Cloud Functions, which generate embeddings and vectors and context genrated is stored into the vector db.
+**Context Creation**: The context is created using Cloud Functions, which generate embeddings and vectors and context genrated is stored into the vector db.
 
-Prompt Generation: Prompts are generated and their embeddings are created. A query is run to find the top 5 matching indexes.
+**Prompt Generation**: Prompts are generated and their embeddings are created. A query is run to find the top 5 matching indexes.
 
-Integration: A HTTP connector is integrated to send a request to the Cloud Run app and submit the response to the Generated answer topic.
+**Integration**: A HTTP connector is integrated to send a request to the Cloud Run app and submit the response to the Generated answer topic.
 
-Response Generation: The Cloud Run app, developed and deployed with the Gemini API, generates a text based response for the end user.
+**Response Generation**: The Cloud Run app, developed and deployed with the Gemini API, generates a text based response for the end user.
 
 Before you start working with this project, ensure you have access to Google Cloud and Confluent services. Familiarize yourself with Google's Gemini API and Vertex AI SDK. Also, ensure you have the necessary permissions to deploy applications and integrate connectors
 
@@ -58,6 +58,7 @@ brew update
 brew upgrade hashicorp/tap/terraform
 ```
 
+## Provision services for the demo
 
 ### Authenticate your Google Cloud account
 ```
@@ -67,14 +68,9 @@ gcloud auth application-default login
 
 ```
 
-
 ### Create VectorSearch Index Endpoint on your Google Cloud account
 Refernce : https://cloud.google.com/vertex-ai/docs/vector-search/deploy-index-vpc
 
-
-
-
-## Provision services for the demo
 
 ### Set environment variables
 - Create file `.env` from `.env_example`
@@ -95,6 +91,7 @@ DEPLOYED_INDEX_ID=<SPECIFY YOUR DEPLOYED_INDEX_ID>
 - Run command: `./demo_start.sh`
 
 The Terraform code will also create resources onto your confluent cloud and gcp account.
+
 
 ## Running the Demo
 
