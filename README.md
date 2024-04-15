@@ -143,35 +143,3 @@ To generate and test real-time context , follow these steps:
 6. Observe if you get a similar response and gcs uri as an output by running the consumer.py.
 
 ```
-
-```
-### Real-time Context Generation:
-```
-
-
-```
-
-
-## Terraform files
-- `vars.tf`: Main system variables (change it as needed)
-- `providers.tf`:
-  - confluentinc/confluen
-  - hashicorp/external (To read env variables)
-- `main.tf`: 
-  - Confluent Cloud Environment
-  - Schema Registry
-  - Apache Kafka Cluster
-  - Service Accounts (app_manager, sr, clients)
-  - Role Bindings (app_manager, sr, clients)
-  - Credentials / API Keys (app_manager, sr, clients)
-- `connectors.tf`:
-  - Service Accounts (Connectors)
-  - Access Control List
-  - Credentials / API Keys
-  - Create Kafka topics for the DataGen Connectors
-  - DataGen Connectors
-- `data_portal.tf`:
-  - Create tags and business metadata after creation of KSQL queries.
-  - Create tags and business  bindings for the topics
-
-
