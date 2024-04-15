@@ -96,9 +96,49 @@ DEPLOYED_INDEX_ID=<SPECIFY YOUR DEPLOYED_INDEX_ID>
 
 The Terraform code will also create resources onto your confluent cloud and gcp account.
 
+## Running the Demo
+
+### Data Generation:
+```
 
 
+```
 
+
+### Prompt Generation:
+```
+
+To generate prompts , follow these steps:
+
+1. Navigate to the demo folder.
+2. Create a `client.properties` file based on the `client_example.properties` file. Set appropriate values such as project ID, service account key file path, and other required configurations.
+3. Run the promptproducer.py and enter what would you like to do and provide a gcs_uri of an image already available in the catalog and whose context is set into the `context_topic`.
+4. Set success-topic in consumer.py which is success topic of your CloudRunSinkConnector.
+5. Observe if you get a similar response and gcs uri as an output by running the consumer.py.
+
+```
+
+### Real-time Context Generation:
+```
+
+To generate and test real-time context , follow these steps:
+
+1. Navigate to the demo folder.
+2. Create a `client.properties` file based on the `client_example.properties` file. Set appropriate values such as project ID, service account key file path, and other required configurations.
+3. Create a new folder and upload an entirely different product / clothing item image. 
+3. Run the contextproducer.py and enter details of the product you have entered step 3 and also enter the gcs uri as well.
+4. Run the promptproducer.py and enter what would you like to do and provide a gcs_uri of an product/image similar to context which is set into the step 3.
+5. Set success-topic in consumer.py which is success topic of your CloudRunSinkConnector.
+6. Observe if you get a similar response and gcs uri as an output by running the consumer.py.
+
+```
+
+```
+### Real-time Context Generation:
+```
+
+
+```
 
 
 ## Terraform files
