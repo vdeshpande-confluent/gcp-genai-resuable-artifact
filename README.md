@@ -140,3 +140,6 @@ To generate and test real-time context , follow these steps:
 6. Observe if you get a similar response and gcs uri as an output by running the consumer.py.
 
 ```
+
+
+You can find more clarification in the [GCP GENAI DEMOS](https://drive.google.com/drive/folders/14rtObgvO0tyXwpdA3-RFzeRfLQ3vvdVn?usp=drive_link). This folder contains videos demonstrating two aspects of the demo existing catalog recommendations and recommendation after real-time context generation. Viewing these videos can provide you with a better understanding of how the demo works and what it offers.
