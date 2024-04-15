@@ -120,7 +120,7 @@ def run():
             prod_event = ProductEvent(ProductId=i+1, ProductImageGCSUri=image_uri, ProductDescription=result_desc, ProductAttributes=json.dumps(result_att))
             
             config = read_config()
-            topic = "gcp_genai_demo_context"
+            topic = config["context-topic"]
             producer = Producer(config)
 
             # produces a sample message

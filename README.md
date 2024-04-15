@@ -101,6 +101,17 @@ The Terraform code will also create resources onto your confluent cloud and gcp 
 ### Data Generation:
 ```
 
+To generate data using the product catalog database, upload images to the GCP bucket [confluent-gcp-next-24], and set context using images and product descriptions and attributes, follow these steps:
+
+1. Ensure you have access to the product catalog bucket [confluent-gcp-next-24] or create your own.
+2. Upload images associated with the products to a GCP bucket.
+3. Please create app.toml by looking at example_app.toml
+4. Please create client.properties by looking at client_example.properties
+5. Navigate to the `context-data-generation` folder.
+6. Run the Docker container to process the data which will extract relevant product information including descriptions and attributes from the database and set context to the `context_topic`
+
+
+By following these steps, you'll be able to generate data effectively, incorporating product descriptions, attributes, and images to set context within the project environment.
 
 ```
 
