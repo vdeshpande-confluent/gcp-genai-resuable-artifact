@@ -8,7 +8,7 @@ Let's take a look at architecture to understand all the components
 
 ![image](docs/arc.png)
 
-In the GCP-GenAI-Demo project the focus lies within the retail sector. The project showcases the potential of streaming data to enhance communication channels. Leveraging Google's advanced Language Model, Gemini, the project aims to contextualize responses effectively.
+In the GCP-GenAI-Demo project the focus lies within the retail sector. The project showcases the potential of streaming data to enhance communication channels. Leveraging Google's advanced Large Language Model (LLM), Gemini, the project aims to contextualize responses effectively.
 
 In the specific use case mentioned, the project aims to provide end-users with product recommendations or similar products based on the context derived from the available product catalog. This context could include various factors such as user preferences and previous interactions.
 
@@ -46,7 +46,7 @@ Before you start working with this project, ensure you have access to Google Clo
 ## Pre-requisites
 - User account on [Confluent Cloud](https://www.confluent.io/confluent-cloud/tryfree)
 - Local install of [Terraform](https://www.terraform.io) (details below)
-- Env ,Cluster and Schema registry setup on confluent cloud env
+- Confluent Cloud Environment,Cluster and Schema registry
 
 ## Installation (only need to do that once)
 
@@ -59,6 +59,8 @@ brew upgrade hashicorp/tap/terraform
 ```
 
 ## Provision services for the demo
+
+- Clone the repo onto your local development machine using `git clone <repo url>`
 
 ### Authenticate your Google Cloud account
 ```
