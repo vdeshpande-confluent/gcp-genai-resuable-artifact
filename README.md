@@ -98,7 +98,7 @@ The Terraform code will also create resources onto your confluent cloud and gcp 
 ## Running the Demo
 
 ### Data Generation:
-```
+
 
 To generate data using the product catalog database, upload images to the GCP bucket [confluent-gcp-next-24], and set context using images and product descriptions and attributes, follow these steps:
 
@@ -112,7 +112,7 @@ To generate data using the product catalog database, upload images to the GCP bu
 
 By following these steps, you'll be able to generate data effectively, incorporating product descriptions, attributes, and images to set context within the project environment.
 
-```
+
 
 
 ### Prompt Generation:
