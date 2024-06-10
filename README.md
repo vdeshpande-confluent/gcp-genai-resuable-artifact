@@ -1,7 +1,7 @@
 # genai-confluent-gcp-artifact
 # Overview
 
-This is the 2.0 version of what we did at current 2023 with GCP, where we built a streaming RAG pipeline powered by Flink SQL on confluent cloud for real time contextual processing on the other hand using Gemini's multimodality for Image+Text based question/answering chat pipeline for domain specific knowledge bots. References: [Architecture](https://lucid.app/lucidchart/ce1acdc5-08d1-4f26-88fb-f75c435331bc/edit?referringApp=google+drive&beaconFlowId=728bd107b5478196&invitationId=inv_ec0df969-af71-42e8-8b97-7040187b9dd9&page=hIEhqJj~tzIJ#), [Google Blog](https://cloud.google.com/blog/topics/partners/confluent-brings-real-time-capabilities-to-google-cloud-gen-ai), [Webinar](https://event.on24.com/wcc/r/4513309/FECC83DA71BA6716B67A5CF262D9C6B0), [Deck](https://docs.google.com/presentation/d/1enlFaFB9ft4893Y07pW2fi5cw1LvJyctG9l8w3Y0qKI/edit#slide=id.g23d1fe316c8_0_3960).
+This is the 2.0 version of what we did at current 2023 with GCP, where we built a streaming RAG pipeline powered by Flink SQL on confluent cloud for real time contextual processing on the other hand using Gemini's multimodality for Image+Text based question/answering chat pipeline for domain specific knowledge bots. References: [Google Blog](https://cloud.google.com/blog/topics/partners/confluent-brings-real-time-capabilities-to-google-cloud-gen-ai)
 
 ## Before you begin
 Let's take a look at architecture to understand all the components
@@ -70,10 +70,6 @@ gcloud auth application-default login
 
 ```
 
-### Create VectorSearch Index Endpoint on your Google Cloud account
-Refernce : https://cloud.google.com/vertex-ai/docs/vector-search/deploy-index-vpc
-
-
 ### Set environment variables
 - Create file `.env` from `.env_example`
 ```
@@ -83,10 +79,13 @@ CC_ENV_ID=<SPECIFY YOUR ENVIRONMENT ID>
 CC_SR_ID=<SPECIFY YOUR SCHEMA REGISTRY ID>
 CC_CLUSTER_ID=<SPECIFY YOUR KAFKA CLUSTER ID>
 PROJECT_ID=<SPECIFY YOUR GCP PROJECT_ID>
-INDEX_NAME=<SPECIFY YOUR GCP INDEX_NAME>
 REGION=<SPECIFY YOUR REGION>
-INDEX_ENDPOINT=<SPECIFY YOUR INDEX_ENDPOINT>
-DEPLOYED_INDEX_ID=<SPECIFY YOUR DEPLOYED_INDEX_ID>
+
+KAGGLE_USERNAME=<Your kaggle username
+KAGGLE_KEY=<Your kaggle key>
+CONTEXT_DATA_SIZE=<Specify your desired no of records for setting context , MAX_VALUE = 2000 (DATASET CONTAINS 2000 images)>
+
+
 ```
 
 ### Setup the env for demo 
@@ -94,25 +93,29 @@ DEPLOYED_INDEX_ID=<SPECIFY YOUR DEPLOYED_INDEX_ID>
 
 The Terraform code will also create resources onto your confluent cloud and gcp account.
 
+### Create VectorSearch Index Endpoint on your Google Cloud account
+gcp_vector_store.tf
+
 
 ## Running the Demo
 
-### Data Generation:
+### Verify Context Data Generation:
+
+Based on any product information and image, `context-data-generation` folder perform the following:
+
+- Generated data using the product catalog database, the images are uploaded to the GCP bucket [gcp-genai-demo_context_bucket], and context is set using images and product descriptions and attributes using cloud run job
+- Create multimodal embeddings (text and image) from the input description and image
+- Perform nearest neighbor search on existing product catalog embeddings in Vertex Vector Search to fetch x nearest product ids
+- Lookup existing product categories from the retrieved ids.
+- Use an LLM to rank returned categories
 
 
-To generate data using the product catalog database, upload images to the GCP bucket [confluent-gcp-next-24], and set context using images and product descriptions and attributes, follow these steps:
+Verify context data is generated into context-topic incorporating product descriptions, attributes, and images uri. 
 
-1. Ensure you have access to the product catalog bucket [confluent-gcp-next-24] or create your own.
-2. Upload images associated with the products to a GCP bucket.
-3. Please create app.toml by looking at example_app.toml
-4. Please create client.properties by looking at client_example.properties
-5. Navigate to the `context-data-generation` folder.
-6. Run the Docker container to process the data which will extract relevant product information including descriptions and attributes from the database and set context to the `context_topic`
-
-
-By following these steps, you'll be able to generate data effectively, incorporating product descriptions, attributes, and images to set context within the project environment.
-
-
+1. Navigate to the `context-data-generation` folder.
+2. Check Cloud Run Job [gcp-genai-demo-cloud-run-job-context-generation] execution is finished.
+3. The cloud run job is created using terraform.
+4. Verify context-topic containing around 50 records incorporating product descriptions, attributes, and images uri. 
 
 
 ### Prompt Generation:
@@ -144,4 +147,3 @@ To generate and test real-time context , follow these steps:
 ```
 
 
-You can find more clarification in the [GCP GENAI DEMOS](https://drive.google.com/drive/folders/14rtObgvO0tyXwpdA3-RFzeRfLQ3vvdVn?usp=drive_link). This folder contains videos demonstrating two aspects of the demo existing catalog recommendations and recommendation after real-time context generation. Viewing these videos can provide you with a better understanding of how the demo works and what it offers.
