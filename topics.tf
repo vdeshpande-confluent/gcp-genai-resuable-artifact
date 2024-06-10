@@ -105,3 +105,32 @@ resource "confluent_schema" "avro-gcp_genai_demo_prompt_embedding" {
   }
   depends_on = [ confluent_api_key.app-manager-schema-api-key ]
 }
+
+
+
+
+resource "local_file" "kafka_config" {
+  content  = <<EOF
+bootstrap.servers=${data.confluent_kafka_cluster.cc_kafka_cluster.bootstrap_endpoint}
+sasl.username=${confluent_api_key.app-manager-kafka-api-key.id}
+sasl.password=${confluent_api_key.app-manager-kafka-api-key.secret}
+security.protocol=SASL_SSL
+sasl.mechanisms=PLAIN
+
+context_topic_name=${confluent_kafka_topic.gcp_genai_demo_context.topic_name}
+prompt_topic_name=${confluent_kafka_topic.gcp_genai_demo_prompt.topic_name}
+prompt_context_topic_name=gcp_genai_demo_prompt_context
+session.timeout.ms=45000
+
+schema.registry.url=${data.confluent_schema_registry_cluster.cc_sr_cluster.rest_endpoint}
+schema.registry.basic.auth.credentials.source=USER_INFO
+schema.registry.basic.auth.user.info=${confluent_api_key.app-manager-schema-api-key.id}:${confluent_api_key.app-manager-schema-api-key.secret}
+EOF
+
+  filename = "${path.module}/demo/client.properties"
+  depends_on = [ confluent_api_key.app-manager-kafka-api-key,confluent_api_key.app-manager-schema-api-key,confluent_kafka_topic.gcp_genai_demo_context,confluent_kafka_topic.gcp_genai_demo_prompt,confluent_flink_statement.gcp_genai_demo_prompt_context_table ]
+}
+
+output "kafka_config_file" {
+  value = local_file.kafka_config.filename
+}

@@ -102,6 +102,7 @@ Based on any product information and image, `context-data-generation` folder per
 - Generated data using the product catalog database, the images are uploaded to the GCP bucket [gcp-genai-demo_context_bucket], and context is set using images and product descriptions and attributes using cloud run job
 - Utilizes an LLM to generate product attributes to further enhance a product listing making it more effective for search and recommendations usecases.
 References: [GCP GenAI Product Catalog](https://github.com/GoogleCloudPlatform/genai-product-catalog/)
+- Utlizes kaggle's open source database.[Database reference](https://www.kaggle.com/datasets/usman8/khaadis-clothes-data-with-images)
 
 
 Verify context data is generated into context-topic incorporating product descriptions, attributes, and images uri. 
@@ -118,10 +119,9 @@ Verify context data is generated into context-topic incorporating product descri
 To generate prompts , follow these steps:
 
 1. Navigate to the demo folder.
-2. Create a `client.properties` file based on the `client_example.properties` file. Set appropriate values such as project ID, service account key file path, and other required configurations.
-3. Run the promptproducer.py and enter what would you like to do and provide a gcs_uri of an image already available in the catalog and whose context is set into the `context_topic`.
-4. Set success-topic in consumer.py which is success topic of your CloudRunSinkConnector.
-5. Observe if you get a similar response and gcs uri as an output by running the consumer.py.
+2. Run the promptproducer.py and enter what would you like to do and provide a gcs_uri of an image already available in the catalog and whose context is set into the `context_topic`.
+3. Set success-topic in consumer.py which is success topic of your CloudRunSinkConnector.
+4. Observe if you get a similar response and gcs uri as an output by running the consumer.py.
 
 ```
 
@@ -131,8 +131,7 @@ To generate prompts , follow these steps:
 To generate and test real-time context , follow these steps:
 
 1. Navigate to the demo folder.
-2. Create a `client.properties` file based on the `client_example.properties` file. Set appropriate values such as project ID, service account key file path, and other required configurations.
-3. Create a new folder and upload an entirely different product / clothing item image. 
+2. Create a new folder and upload an entirely different product / clothing item image. 
 3. Run the contextproducer.py and enter details of the product you have entered step 3 and also enter the gcs uri as well.
 4. Run the promptproducer.py and enter what would you like to do and provide a gcs_uri of an product/image similar to context which is set into the step 3.
 5. Set success-topic in consumer.py which is success topic of your CloudRunSinkConnector.

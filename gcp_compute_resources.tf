@@ -236,10 +236,10 @@ resource "google_cloud_run_service" "genai_run_service" {
 
 
 resource "null_resource" "build_and_push_container_context" {
-  triggers = {
-    # This will force the execution of the provisioners on every apply
-    always_run = "${timestamp()}"
-  }
+  # triggers = {
+  #   # This will force the execution of the provisioners on every apply
+  #   always_run = "${timestamp()}"
+  # }
 
   # Execute local command to build the Docker container
   provisioner "local-exec" {
