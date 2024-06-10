@@ -100,14 +100,12 @@ gcp_vector_store.tf
 ## Running the Demo
 
 ### Verify Context Data Generation:
-
+```
 Based on any product information and image, `context-data-generation` folder perform the following:
 
 - Generated data using the product catalog database, the images are uploaded to the GCP bucket [gcp-genai-demo_context_bucket], and context is set using images and product descriptions and attributes using cloud run job
-- Create multimodal embeddings (text and image) from the input description and image
-- Perform nearest neighbor search on existing product catalog embeddings in Vertex Vector Search to fetch x nearest product ids
-- Lookup existing product categories from the retrieved ids.
-- Use an LLM to rank returned categories
+- Utilizes an LLM to generate product attributes to further enhance a product listing making it more effective for search and recommendations usecases.
+References: [GCP GenAI Product Catalog](https://github.com/GoogleCloudPlatform/genai-product-catalog/)
 
 
 Verify context data is generated into context-topic incorporating product descriptions, attributes, and images uri. 
@@ -117,7 +115,7 @@ Verify context data is generated into context-topic incorporating product descri
 3. The cloud run job is created using terraform.
 4. Verify context-topic containing around 50 records incorporating product descriptions, attributes, and images uri. 
 
-
+```
 ### Prompt Generation:
 ```
 
