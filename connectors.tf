@@ -253,7 +253,8 @@ resource "confluent_connector" "gcp_genai_demo_prompt_sink" {
     confluent_kafka_acl.connectors_source_read_topic_dlq,
     confluent_kafka_acl.connectors_source_consumer_group,
     google_cloudfunctions_function.prompt,
-    google_service_account_key.gcp_genai_demo_service_account_key
+    google_service_account_key.gcp_genai_demo_service_account_key,
+    local_file.service_account_key_json
     
   ]
   lifecycle {
@@ -294,7 +295,8 @@ resource "confluent_connector" "gcp_genai_demo_context_sink" {
     confluent_kafka_acl.connectors_source_read_topic_dlq,
     confluent_kafka_acl.connectors_source_consumer_group,
     google_cloudfunctions_function.context,
-    google_service_account_key.gcp_genai_demo_service_account_key
+    google_service_account_key.gcp_genai_demo_service_account_key,
+    local_file.service_account_key_json
   ]
   lifecycle {
     prevent_destroy = false
@@ -324,7 +326,7 @@ resource "confluent_connector" "gcp_genai_cloud_run_sink" {
       "http.api.url": "${google_cloud_run_service.genai_run_service.status.0.url}/recommend",
       "request.method": "POST",
       "tasks.max": "1",
-      "request.body.format":"JSON"
+      "request.body.format":"json"
     }
   depends_on = [
     confluent_kafka_acl.connectors_source_create_topic_demo,

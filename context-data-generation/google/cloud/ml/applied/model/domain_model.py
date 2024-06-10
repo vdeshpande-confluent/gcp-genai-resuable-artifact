@@ -11,7 +11,7 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-from typing import Optional, List
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -56,12 +56,12 @@ class Liveliness(BaseModel):
     message: str
 
 
-def parse_project_attributes_from_dict(obj: List[dict]) -> ProductAttributes:
+def parse_project_attributes_from_dict(obj: dict) -> ProductAttributes:
     out = ProductAttributes()
 
-    for k in obj:
+    for k in obj.keys():
         out.product_attributes.append(
-            AttributeValue(attribute_name=k["attribute_name"], attribute_value=k["attribute_value"])
+            AttributeValue(attribute_name=k, attribute_value=obj[k])
         )
     return out
 
@@ -70,8 +70,8 @@ def parse_list_to_dict(obj: list) -> dict:
     prod_dict = {}
 
     for i in obj:
-        key = i["name"]
-        value = i["value"]
+        key = i["attribute_name"]
+        value = i["attribute_value"]
         prod_dict[key] = value
 
     return prod_dict

@@ -18,9 +18,9 @@ import json
 import typing
 import urllib.request
 
-from cloud.ml.applied.model import domain_model as m     
-from cloud.ml.applied.utils import utils
-from vertexai.preview.generative_models import Image, Part, GenerationResponse
+from google.cloud.ml.applied.model import domain_model as m
+from google.cloud.ml.applied.utils import utils
+from vertexai.preview.generative_models import Image, Part
 
 multimodal_model = utils.get_gemini_pro_vision()
 
@@ -57,7 +57,7 @@ def from_gsc_uri(image_uri):
     return image_part
 
 
-def content_generation(prompt: str, im)->GenerationResponse:
+def content_generation(prompt: str, im):
     responses = ""
     try:
         responses = multimodal_model.generate_content(
@@ -86,32 +86,27 @@ def image_to_attributes(req: m.ImageRequest) -> m.ProductAttributes:
     responses = content_generation(prompt, im)
     res = responses.text
     res = res.replace("```", "")
-    if res.rfind("json") != -1:
-        res = res.replace("json", "")
-    elif res.rfind("JSON") != -1:
-        res = res.replace("JSON", "")
-    else:
-        return "No product description for this product"
+    res = res.replace("json", "")
 
     # This produces multiple models, NOT USEFUL for API calls.
     # had to create a parser to return consistent values
-    attributes_json = json.loads(res)
-    # print(attributes_json)
 
-    # if "product_attributes" not in attributes_json:
-    #     print("parsing")
-    #     response = m.parse_project_attributes_from_dict(attributes_json)
-    # else:
-    #     # response = m.parse_list_to_dict(attributes_json.get('product_attributes'))
-       
-    #     response = m.parse_project_attributes_from_dict(
-    #         attributes_json.get("product_attributes")
-    #     )
+    attributes_json = json.loads(res.strip())
+    print(attributes_json)
+    
+    if "product_attributes" not in attributes_json:
+        print("parsing")
+        response = m.parse_project_attributes_from_dict(attributes_json)
+    else:
+        response = m.parse_list_to_dict(attributes_json.get('product_attributes'))
+        # response = m.parse_project_attributes_from_dict(
+        #     attributes_json.get("product_attributes")
+        # )
 
-    return attributes_json
+    return response
 
 
-def image_to_product_description(image: str) -> str:
+def image_to_product_description(image: str) -> m.TextValue:
     prompt = """Write enriched product description for the main product in
     the image for retailer's product catalog"""
 
@@ -120,17 +115,13 @@ def image_to_product_description(image: str) -> str:
     else:
         im = from_url(image)
     responses = content_generation(prompt, im)
-    try:
-        result = responses.to_dict().get("candidates")[0]["content"].get("parts")[0].get("text")
-    except Exception as e:
-        print(e)
-        result = "Not Found"
-    # print(json.loads(responses.decode()))
-    # res = ""
-    # for response in responses:
-    #     res += response.candidates[0].content.parts[0].text
-    # desc = res.strip()
-
-    # return "m.TextValue(text=desc)"
-    # print()
-    return result
+    print(responses)
+    res = ""
+    if type(responses)==list:
+        for response in responses:
+            res += response.candidates[0].content.parts[0].text
+    else:
+        res = responses.candidates[0].content.parts[0].text
+    desc = res.strip()
+    print(res)
+    return m.TextValue(text=desc)

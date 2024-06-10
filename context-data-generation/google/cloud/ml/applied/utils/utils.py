@@ -21,7 +21,7 @@ from typing import Any
 from google.cloud import aiplatform_v1
 from google.cloud import bigquery
 from vertexai.preview.generative_models import GenerativeModel
-from cloud.ml.applied.config import Config
+from google.cloud.ml.applied.config import Config
 
 conf = Config()
 

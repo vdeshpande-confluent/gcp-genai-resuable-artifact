@@ -44,7 +44,7 @@ output "cc_kafka_cluster" {
 
 
 resource "confluent_service_account" "app-manager-genai" {
-  display_name = "app-manager-genai"
+  display_name = "app-manager-genai-${random_id.id.hex}"
   description  = "Service account to manage 'inventory' Kafka cluster"
 }
 

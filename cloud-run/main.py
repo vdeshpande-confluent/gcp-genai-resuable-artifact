@@ -70,7 +70,8 @@ async def recommend(request: Request):
 
 def generate_prompt(humanRequest):
     try:
-    
+        
+        
         promptContent = f"You are an expert in the clothing market. You are tasked to assist user in the following clothing related query/request. Request from User: {humanRequest.prompt_text}"
         supportingDescriptions = f"Similar Products description for hints generated from RAG pipeline: {humanRequest.product_description[0:5]}"
         supportingAttributes = f"Similar Products attributes for hints generated from RAG pipeline: {humanRequest.product_attributes[0:5]}"
@@ -97,25 +98,7 @@ def generate_prompt(humanRequest):
     except Exception as e:
         raise e
     return content
-# gcloud auth application-default login 
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=PORT)
-"""
-You are an expert musical instrument technician your job is to extract for every page a description of the product depicted.
-
-To achieve your task follow these steps:
-
-1. Carefully analyze every page of the catalog, you will create a single entry per item presented.
-2. Look at the item image and carefully read the text.
-3. Annotate the results in JSON format, using the format below.
-4. Always think step by step, and NEVER make up information.
-<format>
-```json
-{
-"item_name": ,
-"item_type": ,
-"col
-
-
-"""

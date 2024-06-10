@@ -34,6 +34,7 @@ resource "confluent_schema" "avro-gcp_genai_demo_prompt" {
   lifecycle {
     prevent_destroy = false
   }
+  depends_on = [ confluent_api_key.app-manager-schema-api-key ]
 }
 
 resource "confluent_kafka_topic" "gcp_genai_demo_context" {
@@ -49,6 +50,7 @@ resource "confluent_kafka_topic" "gcp_genai_demo_context" {
   lifecycle {
     prevent_destroy = false
   }
+  depends_on = [ confluent_api_key.app-manager-kafka-api-key ]
 }
 resource "confluent_schema" "avro-gcp_genai_demo_context" {
   schema_registry_cluster {
@@ -66,6 +68,8 @@ resource "confluent_schema" "avro-gcp_genai_demo_context" {
   lifecycle {
     prevent_destroy = false
   }
+  depends_on = [ confluent_api_key.app-manager-schema-api-key ]
+
 }
 
 resource "confluent_kafka_topic" "gcp_genai_demo_prompt_embedding" {
@@ -81,6 +85,7 @@ resource "confluent_kafka_topic" "gcp_genai_demo_prompt_embedding" {
   lifecycle {
     prevent_destroy = false
   }
+  depends_on = [ confluent_api_key.app-manager-kafka-api-key ]
 }
 resource "confluent_schema" "avro-gcp_genai_demo_prompt_embedding" {
   schema_registry_cluster {
@@ -98,4 +103,5 @@ resource "confluent_schema" "avro-gcp_genai_demo_prompt_embedding" {
   lifecycle {
     prevent_destroy = false
   }
+  depends_on = [ confluent_api_key.app-manager-schema-api-key ]
 }
