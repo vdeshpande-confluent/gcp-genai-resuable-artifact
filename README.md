@@ -93,10 +93,6 @@ CONTEXT_DATA_SIZE=<Specify your desired no of records for setting context , MAX_
 
 The Terraform code will also create resources onto your confluent cloud and gcp account.
 
-### Create VectorSearch Index Endpoint on your Google Cloud account
-gcp_vector_store.tf
-
-
 ## Running the Demo
 
 ### Verify Context Data Generation:
@@ -111,7 +107,7 @@ References: [GCP GenAI Product Catalog](https://github.com/GoogleCloudPlatform/g
 Verify context data is generated into context-topic incorporating product descriptions, attributes, and images uri. 
 
 1. Navigate to the `context-data-generation` folder.
-2. Check Cloud Run Job [gcp-genai-demo-cloud-run-job-context-generation] execution is finished.
+2. Check Cloud Run Job [gcp-genai-demo-cloud-run-job-context-generation] execution is finished, would take around 10 mins(Also depends on context-data-size specified in envionment variables).
 3. The cloud run job is created using terraform.
 4. Verify context-topic containing around 50 records incorporating product descriptions, attributes, and images uri. 
 
@@ -145,3 +141,31 @@ To generate and test real-time context , follow these steps:
 ```
 
 
+# Terraform and Config files
+- `vars.tf`: Main system variables (change it as needed)
+- `providers.tf`:
+  - confluentinc/confluen
+  - hashicorp/external (To read env variables)
+- `main.tf`: 
+  - Confluent Cloud Environment
+  - Schema Registry
+  - Link Apache Kafka Cluster
+  - Service Accounts (app_manager, sr, clients)
+  - Role Bindings (app_manager, sr, clients)
+  - Credentials / API Keys (app_manager, sr, clients)
+- `connectors.tf`:
+  - Service Accounts (Connectors)
+  - Access Control List
+  - Credentials / API Keys
+  - Cloud Function sink Connectors(Prompt and Context) and HTTP Sink Connector
+- `Flink.tf`:
+  - Creates Flink Compute Pool
+  - Create tables and join queries
+- `topics.tf`:
+  - Creates context and prompt topics with valid schemas
+- `gcp_vector_store.tf`:
+  - Create Vector Search Index and Endpoint on your Google Cloud account
+- `gcp_compute_resources.tf`:
+  - Creates cloud functions (prompt and context client tp generate embeddings and perform vector search)
+  - Creates Cloud run instance which generates text response from similar products and metadata obtained from the RAG pipeline
+  - Creates Cloud Run Job which generates context data(product attributes, description and images) from opensource clothing database.
