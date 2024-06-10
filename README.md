@@ -168,3 +168,8 @@ To generate and test real-time context , follow these steps:
   - Creates cloud functions (prompt and context client tp generate embeddings and perform vector search)
   - Creates Cloud run instance which generates text response from similar products and metadata obtained from the RAG pipeline
   - Creates Cloud Run Job which generates context data(product attributes, description and images) from opensource clothing database.
+
+
+  # Troubleshooting
+  - Images are built and pushed using `local-exec` , please uncomment triggers incase of any changes
+  - Vector index deployment to an endpoint is not supported via terraform hence implemented via gcloud cli command , make sure you have authorized google cloud credentials, please uncomment triggers incase of any changes.

@@ -334,10 +334,10 @@ resource "google_cloud_run_v2_job" "genai_run_job_context_data" {
 }
 
 resource "null_resource" "execute_genai_run_job_context_data" {
-  triggers = {
-    # This will force the execution of the provisioners on every apply
-    always_run = "${timestamp()}"
-  }
+  # triggers = {
+  #   # This will force the execution of the provisioners on every apply
+  #   always_run = "${timestamp()}"
+  # }
   depends_on = [google_cloud_run_v2_job.genai_run_job_context_data]
 
   provisioner "local-exec" {
