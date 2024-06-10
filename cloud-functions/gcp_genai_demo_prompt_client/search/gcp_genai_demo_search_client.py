@@ -32,10 +32,4 @@ class VectorSearchClient:
         return resp
     
 
-#     KAFKA_TOPIC_URL = 'https://pkc-n3603.us-central1.gcp.confluent.cloud:443/kafka/v3/clusters/lkc-z62yw7/topics/gcp_genai_demo_prompt_embedding/records'
-# KAFKA_API_KEY = "OQIHQU2ZB73IPGB7"
-# KAFKA_API_SECRET = "sz3W4e5ATxB23Hl5SlDfN67FBrzsDO2tSyYwkxf6qV0sl68EN7lMn3pssA/v2Hrc"
-# INDEX_ENDPOINT="projects/92466927170/locations/us-central1/indexEndpoints/7431471548789161984"
-# # DEPLOYED_INDEX_ID="gcp_genai_demo_vector_1709930174451"
-# PROJECT_ID=sales-engineering-206314
-# REGION=us-central1
+ 

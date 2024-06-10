@@ -1,7 +1,10 @@
 .env
+.enva
 client.properties
 app.toml
 terraform*
 .terraform*
 prompt.zip
 context.zip
+service_account_key.json
+credentials.json

@@ -75,6 +75,15 @@ resource "local_file" "cloud_run_service_account_key_json" {
   filename = "./cloud-run/service_account_key.json"
 }
 
+resource "local_file" "cloud_run_context_service_account_key_json" {
+  content  = base64decode(google_service_account_key.gcp_genai_demo_service_account_key.private_key)
+  filename = "./context-data-generation/credentials.json"
+}
+resource "google_storage_bucket" "context_bucket" {
+  name = "${var.identifier}_context_bucket" 
+  location = "us-central1"
+}
+
 
 
 
@@ -114,12 +123,14 @@ resource "google_storage_bucket_object" "context_zip" {
 }
 
 
+
+
 # Cloud Function 1
 resource "google_cloudfunctions_function" "prompt" {
   name        = "${var.identifier}-prompt-client"  
   description = "Prompt Function"
   runtime     = "python39"
-  source_archive_bucket = "${var.identifier}_code_bucket"
+  source_archive_bucket = "${var.identifier}_code_bucket" 
   source_archive_object = google_storage_bucket_object.prompt_zip.name
   entry_point = "invoke_prompt_client"
   service_account_email = google_service_account.gcp_genai_demo_service_account.email
@@ -127,8 +138,8 @@ resource "google_cloudfunctions_function" "prompt" {
   environment_variables = {
     "REGION" = data.external.env_vars.result.REGION
     "PROJECT_ID" = data.external.env_vars.result.PROJECT_ID
-    "INDEX_ENDPOINT" = data.external.env_vars.result.INDEX_ENDPOINT
-    "DEPLOYED_INDEX_ID"= data.external.env_vars.result.DEPLOYED_INDEX_ID
+    "INDEX_ENDPOINT" = "projects/${data.external.env_vars.result.PROJECT_NUMBER}/locations/${data.external.env_vars.result.REGION}/indexEndpoints/${google_vertex_ai_index_endpoint.index_endpoint.id}"
+    "DEPLOYED_INDEX_ID"= "gcp_genai_demo_deployed_index"
     "KAFKA_TOPIC_NAME" = confluent_kafka_topic.gcp_genai_demo_prompt_embedding.topic_name
     "KAFKA_API_KEY" = confluent_api_key.app-manager-kafka-api-key.id
     "KAFKA_API_SECRET" = confluent_api_key.app-manager-kafka-api-key.secret
@@ -137,6 +148,8 @@ resource "google_cloudfunctions_function" "prompt" {
     "SR_API_KEY" = confluent_api_key.app-manager-schema-api-key.id
     "SR_API_SECRET" = confluent_api_key.app-manager-schema-api-key.secret
    }
+     depends_on = [ google_vertex_ai_index.index,google_vertex_ai_index_endpoint.index_endpoint,null_resource.deploy_index ]
+
 }
 
 # # Cloud Function 2
@@ -150,10 +163,11 @@ resource "google_cloudfunctions_function" "context" {
   service_account_email = google_service_account.gcp_genai_demo_service_account.email
   trigger_http = true
   environment_variables = {
-    "INDEX_NAME" = data.external.env_vars.result.INDEX_NAME
+    "INDEX_NAME" = "projects/${data.external.env_vars.result.PROJECT_NUMBER}/locations/${data.external.env_vars.result.REGION}/indexEndpoints/${google_vertex_ai_index.index.id}"
     "REGION" = data.external.env_vars.result.REGION
     "PROJECT_ID" = data.external.env_vars.result.PROJECT_ID
   }
+  depends_on = [ google_vertex_ai_index.index,google_vertex_ai_index_endpoint.index_endpoint,null_resource.deploy_index ]
 }
 
 resource "null_resource" "build_and_push_container" {
@@ -167,8 +181,6 @@ resource "null_resource" "build_and_push_container" {
     command = "docker buildx build --platform linux/amd64 -t gcr.io/${data.external.env_vars.result.PROJECT_ID}/${var.identifier}-repo ./cloud-run"
   }
 
-
-
   # Execute local command to push the Docker container to GCR
   provisioner "local-exec" {
     command = "docker push gcr.io/${data.external.env_vars.result.PROJECT_ID}/${var.identifier}-repo:latest"
@@ -176,9 +188,29 @@ resource "null_resource" "build_and_push_container" {
 
   depends_on = [ local_file.cloud_run_service_account_key_json ]
 
-
 }
 
+
+
+data "google_iam_policy" "noauth" {
+  binding {
+    role = "roles/run.invoker"
+    members = [
+      "allUsers",
+    ]
+  }
+}
+# Enable public access on Cloud Run service
+resource "google_cloud_run_service_iam_policy" "noauth" {
+  location    = google_cloud_run_service.genai_run_service.location
+  project     = google_cloud_run_service.genai_run_service.project
+  service     = google_cloud_run_service.genai_run_service.name
+  policy_data = data.google_iam_policy.noauth.policy_data
+}
+# Return service URL
+output "url" {
+  value = "${google_cloud_run_service.genai_run_service.status[0].url}"
+}
 
 # Cloud Run Service
 resource "google_cloud_run_service" "genai_run_service" {
@@ -201,98 +233,114 @@ resource "google_cloud_run_service" "genai_run_service" {
   }
 }
 
-data "google_iam_policy" "noauth" {
-  binding {
-    role = "roles/run.invoker"
-    members = [
-      "allUsers",
-    ]
+
+
+resource "null_resource" "build_and_push_container_context" {
+  triggers = {
+    # This will force the execution of the provisioners on every apply
+    always_run = "${timestamp()}"
+  }
+
+  # Execute local command to build the Docker container
+  provisioner "local-exec" {
+    command = "docker buildx build --platform linux/amd64 -t gcr.io/${data.external.env_vars.result.PROJECT_ID}/${var.identifier}-context-repo ./context-data-generation"
+  }
+
+
+
+  # Execute local command to push the Docker container to GCR
+  provisioner "local-exec" {
+    command = "docker push gcr.io/${data.external.env_vars.result.PROJECT_ID}/${var.identifier}-context-repo:latest"
+  }
+
+  depends_on = [ local_file.cloud_run_service_account_key_json ]
+
+
+}
+
+
+resource "google_cloud_run_v2_job" "genai_run_job_context_data" {
+  name     = "${var.identifier}-cloud-run-job-context-generation"
+  location = "us-central1"
+  depends_on = [ confluent_kafka_topic.gcp_genai_demo_context,google_storage_bucket.context_bucket,confluent_api_key.app-manager-kafka-api-key ]
+  template {
+
+   
+    template {
+      timeout = "7200s"
+      
+      containers {
+        resources {
+          limits = {
+            cpu    = "4"
+            memory = "4Gi"
+          }
+        }
+        image = "gcr.io/${data.external.env_vars.result.PROJECT_ID}/${var.identifier}-context-repo:latest"
+        env {
+          name  = "PROJECT_ID"
+          value = data.external.env_vars.result.PROJECT_ID
+        }
+        env {
+          name  = "bootstrap.servers"
+          value = data.confluent_kafka_cluster.cc_kafka_cluster.bootstrap_endpoint
+        }
+        env {
+          name  = "sasl.username"
+          value = confluent_api_key.app-manager-kafka-api-key.id
+        }
+        env {
+          name  = "sasl.password"
+          value = confluent_api_key.app-manager-kafka-api-key.secret
+        }
+        env {
+          name  = "schema.registry.url"
+          value = data.confluent_schema_registry_cluster.cc_sr_cluster.rest_endpoint
+        }
+        env {
+          name  = "schema.registry.basic.auth.user.info"
+          value = "${confluent_api_key.app-manager-schema-api-key.id}:${confluent_api_key.app-manager-schema-api-key.secret}"
+        }
+        env {
+          name  = "KAGGLE_USERNAME"
+          value = data.external.env_vars.result.KAGGLE_USERNAME
+        }
+        env {
+          name  = "KAGGLE_KEY"
+          value = data.external.env_vars.result.KAGGLE_KEY
+        }
+        env {
+          name  = "GOOGLE_APPLICATION_CREDENTIALS"
+          value = "credentials.json"
+        }
+        env {
+          name  = "context_topic"
+          value = confluent_kafka_topic.gcp_genai_demo_context.topic_name
+        }
+        env {
+          name  = "GCP_CONTEXT_BUCKET"
+          value = google_storage_bucket.context_bucket.name
+        }
+        env {
+          name  = "CONTEXT_DATA_SIZE"
+          value =  data.external.env_vars.result.CONTEXT_DATA_SIZE
+        }
+        
+
+      }
+      
+    }
   }
 }
-# Enable public access on Cloud Run service
-resource "google_cloud_run_service_iam_policy" "noauth" {
-  location    = google_cloud_run_service.genai_run_service.location
-  project     = google_cloud_run_service.genai_run_service.project
-  service     = google_cloud_run_service.genai_run_service.name
-  policy_data = data.google_iam_policy.noauth.policy_data
+
+resource "null_resource" "execute_genai_run_job_context_data" {
+  triggers = {
+    # This will force the execution of the provisioners on every apply
+    always_run = "${timestamp()}"
+  }
+  depends_on = [google_cloud_run_v2_job.genai_run_job_context_data]
+
+  provisioner "local-exec" {
+    command = "gcloud run jobs execute ${google_cloud_run_v2_job.genai_run_job_context_data.name} --region ${google_cloud_run_v2_job.genai_run_job_context_data.location}"
+  }
 }
-# Return service URL
-output "url" {
-  value = "${google_cloud_run_service.genai_run_service.status[0].url}"
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Cloud Run Service
-# resource "google_cloud_run_service" "genai_run_service" {
-#   name     = "${var.identifier}-cloud-run-service"
-#   location = "us-central1"
-
-#   template {
-#     spec {
-#       containers {
-#         image = "gcr.io/${data.external.env_vars.result.PROJECT_ID}/webapp"
-#       }
-#     }
-#   }
-# }
-
-
-
-# Build and push Docker image to Google Container Registry
-# resource "google_container_build_trigger" "my_build_trigger" {
-#   name         = "my-build-trigger"
-#   description  = "Build trigger for FastAPI application"
-#   project      = data.external.env_vars.result.PROJECT_ID
-#   trigger_template {
-#     branch_name = "main"
-#     repo_name   = "your-repo-name"
-#   }
-#   filename = "Dockerfile"
-#   included_files = [
-#     "main.py",  # Example files to include
-#     "requirements.txt"
-#   ]
-# }
-
-# # # Cloud Run Service
-# # resource "google_cloud_run_service" "my_service" {
-# #   name     = "my-service"
-# #   location = "us-central1"
-
-# #   template {
-# #     spec {
-# #       containers {
-# #         image = "${google_container_registry_docker_image.my_image.image_url}"
-# #       }
-# #     }
-# #   }
-# # }
-
-
-
-
-
-# """
-
-# $ docker build -t gcr.io/terraform-cr/webapp .
-# $ docker push gcr.io/terraform-cr/webapp
-# """

@@ -144,3 +144,5 @@ output "flink_statement_2" {
     value = confluent_flink_statement.insert_gcp_genai_demo_prompt_context.id
   
 }
+
+
